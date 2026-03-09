@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NutriMind — Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --card2: #1c1c28;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8f135;
+    --accent2: #7c6dfa;
+    --accent3: #ff6b6b;
+    --accent4: #38d9a9;
+    --text: #f0f0f8;
+    --muted: #7a7a9a;
+    --radius: 20px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR - same as dashboard */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .logo-text span { color: var(--accent); }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 12px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--card2); color: var(--text); }
+  .nav-item.active { background: var(--accent); color: #0a0a0f; font-weight: 600; }
+  .nav-item .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar-section { margin-top: 28px; }
+  .sidebar-bottom {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--card);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    padding: 32px 36px;
+    overflow-y: auto;
+    background: var(--bg);
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .topbar-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .topbar-left p { color: var(--muted); font-size: 14px; margin-top: 3px; }
+  .topbar-right { display: flex; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #0a0a0f; }
+  .btn-primary:hover { background: #d4ff4a; transform: translateY(-1px); }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--card2); }
+  .notif-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; position: relative;
+  }
+  .notif-dot {
+    position: absolute; top: 8px; right: 8px;
+    width: 7px; height: 7px;
+    background: var(--accent3); border-radius: 50%;
+  }
+
+  /* GOALS SPECIFIC STYLES */
+  .goals-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .goals-categories {
+    display: flex;
+    gap: 10px;
+  }
+
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .goal-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s;
+  }
+
+  .goal-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  .goal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .goal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+
+  .goal-icon.weight { background: rgba(200,241,53,0.15); }
+  .goal-icon.fitness { background: rgba(124,109,250,0.15); }
+  .goal-icon.nutrition { background: rgba(56,217,169,0.15); }
+  .goal-icon.hydration { background: rgba(255,107,107,0.15); }
+
+  .goal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .goal-deadline {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .goal-progress {
+    margin: 16px 0;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .progress-track {
+    height: 8px;
+    background: var(--card2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s;
+  }
+
+  .fill-weight { background: var(--accent); }
+  .fill-fitness { background: var(--accent2); }
+  .fill-nutrition { background: var(--accent4); }
+  .fill-hydration { background: var(--accent3); }
+
+  .goal-metrics {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .metric {
+    text-align: center;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .metric-value {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .milestones-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .milestone-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .milestone-item:last-child { border-bottom: none; }
+
+  .milestone-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .milestone-check.completed {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0a0f;
+  }
+
+  .milestone-content {
+    flex: 1;
+  }
+
+  .milestone-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .milestone-date {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .suggested-goals {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .suggested-card {
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+  }
+
+  .suggested-card:hover {
+    background: var(--card);
+    border-color: var(--accent);
+  }
+
+  .suggested-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .suggested-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .suggested-desc {
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<script src="user-profile.js"></script>
+<script>
+  // Check authentication - redirect to login if not authenticated
+  if (!UserProfile.isLoggedIn()) {
+    window.location.href = 'index.html';
+  }
+</script>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">Nutri<span>Mind</span></div>
+    </div>
+
+    <div>
+      <div class="nav-label">Main</div>
+      <a class="nav-item" href="nutrimind-fitness-app.html"><span class="icon">⊞</span> Dashboard</a>
+      <a class="nav-item" href="workoutpage.html"><span class="icon">🏋️</span> Workouts</a>
+      <a class="nav-item" href="nutrition.html"><span class="icon">🥗</span> Nutrition</a>
+      <a class="nav-item" href="progress.html"><span class="icon">📊</span> Progress</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Health</div>
+      <a class="nav-item" href="sleep.html"><span class="icon">💤</span> Sleep</a>
+      <a class="nav-item" href="hydration.html"><span class="icon">💧</span> Hydration</a>
+      <a class="nav-item" href="vitals.html"><span class="icon">❤️</span> Vitals</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Other</div>
+      <a class="nav-item active" href="goals.html"><span class="icon">🎯</span> Goals</a>
+      <a class="nav-item" href="settings.html"><span class="icon">⚙️</span> Settings</a>
+      <a class="nav-item" href="ai-coach.html"><span class="icon">🤖</span> AI Coach</a>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-card">
+        <div class="avatar">JD</div>
+        <div>
+          <div class="user-name">Jordan Davis</div>
+          <div class="user-role">Premium Plan</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);font-size:18px;">⋮</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Goals & Milestones</h1>
+        <p>Track your fitness objectives</p>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+        <button class="btn btn-ghost">📊 Progress</button>
+        <button class="btn btn-primary">+ New Goal</button>
+      </div>
+    </div>
+
+    <!-- Goals Categories -->
+    <div class="goals-header">
+      <div class="goals-categories">
+        <span class="category-tag active">All Goals</span>
+        <span class="category-tag">Weight</span>
+        <span class="category-tag">Fitness</span>
+        <span class="category-tag">Nutrition</span>
+        <span class="category-tag">Lifestyle</span>
+      </div>
+      <span class="tag">12 goals total</span>
+    </div>
+
+    <!-- Active Goals Grid -->
+    <div class="goals-grid">
+      <!-- Weight Goal -->
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-icon weight">⚖️</div>
+          <div>
+            <div class="goal-title">Target Weight</div>
+            <div class="goal-deadline">Goal by Jun 30, 2026</div>
+          </div>
+        </div>
+
+        <div class="goal-progress">
+          <div class="progress-header">
+            <span>70 kg target</span>
+            <span>74.2 kg current</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-weight" style="width: 58%;"></div>
+          </div>
+        </div>
+
+        <div class="goal-metrics">
+          <div class="metric">
+            <div class="metric-label">Started</div>
+            <div class="metric-value">78 kg</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Lost</div>
+            <div class="metric-value">3.8 kg</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Remaining</div>
+            <div class="metric-value">4.2 kg</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fitness Goal -->
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-icon fitness">💪</div>
+          <div>
+            <div class="goal-title">Strength Training</div>
+            <div class="goal-deadline">Goal by Aug 15, 2026</div>
+          </div>
+        </div>
+
+        <div class="goal-progress">
+          <div class="progress-header">
+            <span>Bench Press: 100 kg</span>
+            <span>Current: 75 kg</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-fitness" style="width: 75%;"></div>
+          </div>
+        </div>
+
+        <div class="goal-metrics">
+          <div class="metric">
+            <div class="metric-label">Squat</div>
+            <div class="metric-value">100 kg</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Deadlift</div>
+            <div class="metric-value">120 kg</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Bench</div>
+            <div class="metric-value">75 kg</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nutrition Goal -->
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-icon nutrition">🥗</div>
+          <div>
+            <div class="goal-title">Clean Eating</div>
+            <div class="goal-deadline">Daily habit</div>
+          </div>
+        </div>
+
+        <div class="goal-progress">
+          <div class="progress-header">
+            <span>30 days streak</span>
+            <span>12 days</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-nutrition" style="width: 40%;"></div>
+          </div>
+        </div>
+
+        <div class="goal-metrics">
+          <div class="metric">
+            <div class="metric-label">Current</div>
+            <div class="metric-value">12 days</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Best</div>
+            <div class="metric-value">18 days</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Goal</div>
+            <div class="metric-value">30 days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hydration Goal -->
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-icon hydration">💧</div>
+          <div>
+            <div class="goal-title">Daily Water</div>
+            <div class="goal-deadline">2.5L per day</div>
+          </div>
+        </div>
+
+        <div class="goal-progress">
+          <div class="progress-header">
+            <span>Weekly average</span>
+            <span>2.2L / day</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-hydration" style="width: 88%;"></div>
+          </div>
+        </div>
+
+        <div class="goal-metrics">
+          <div class="metric">
+            <div class="metric-label">Today</div>
+            <div class="metric-value">1.8L</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Yesterday</div>
+            <div class="metric-value">2.4L</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Avg</div>
+            <div class="metric-value">2.2L</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Milestones Section -->
+    <div class="milestones-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="card-title">Recent Milestones</h2>
+        <span class="tag">6 completed</span>
+      </div>
+
+      <div class="milestone-item">
+        <div class="milestone-check completed">✓</div>
+        <div class="milestone-content">
+          <div class="milestone-name">First 5kg weight loss</div>
+          <div class="milestone-date">Completed on Mar 1, 2026</div>
+        </div>
+        <span class="tag active">Achieved</span>
+      </div>
+
+      <div class="milestone-item">
+        <div class="milestone-check completed">✓</div>
+        <div class="milestone-content">
+          <div class="milestone-name">30-day workout streak</div>
+          <div class="milestone-date">Completed on Feb 15, 2026</div>
+        </div>
+        <span class="tag active">Achieved</span>
+      </div>
+
+      <div class="milestone-item">
+        <div class="milestone-check"></div>
+        <div class="milestone-content">
+          <div class="milestone-name">Bench press 80kg</div>
+          <div class="milestone-date">Expected by Apr 20, 2026</div>
+        </div>
+        <span class="tag">In progress</span>
+      </div>
+
+      <div class="milestone-item">
+        <div class="milestone-check"></div>
+        <div class="milestone-content">
+          <div class="milestone-name">Run 5km under 25min</div>
+          <div class="milestone-date">Expected by May 5, 2026</div>
+        </div>
+        <span class="tag">In progress</span>
+      </div>
+    </div>
+
+    <!-- Suggested Goals -->
+    <h2 class="card-title" style="margin: 30px 0 20px;">Suggested Goals</h2>
+
+    <div class="suggested-goals">
+      <div class="suggested-card">
+        <div class="suggested-icon">🏃</div>
+        <div class="suggested-title">Marathon Prep</div>
+        <div class="suggested-desc">Train for a half marathon in 12 weeks</div>
+      </div>
+      <div class="suggested-card">
+        <div class="suggested-icon">🧘</div>
+        <div class="suggested-title">Flexibility</div>
+        <div class="suggested-desc">Improve mobility with daily stretching</div>
+      </div>
+      <div class="suggested-card">
+        <div class="suggested-icon">🥑</div>
+        <div class="suggested-title">Meal Prep</div>
+        <div class="suggested-desc">Plan and prep meals for the week</div>
+      </div>
+    </div>
+
+    <!-- Goal Insights -->
+    <div style="background: linear-gradient(135deg, var(--accent2), var(--accent)); border-radius: var(--radius); padding: 24px; margin-top: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; color: #fff;">
+        <div>
+          <h3 style="font-size: 18px; margin-bottom: 5px;">Goal Achievement Rate</h3>
+          <p style="opacity: 0.9; font-size: 14px;">You're on track to meet 80% of your goals</p>
+        </div>
+        <div style="font-size: 48px; font-weight: 800;">80%</div>
+      </div>
+      <div style="margin-top: 15px;">
+        <div style="height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+          <div style="height: 100%; width: 80%; background: #fff; border-radius: 10px;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

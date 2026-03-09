@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NutriMind — Fitness Web App</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --card2: #1c1c28;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8f135;
+    --accent2: #7c6dfa;
+    --accent3: #ff6b6b;
+    --accent4: #38d9a9;
+    --text: #f0f0f8;
+    --muted: #7a7a9a;
+    --radius: 20px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .logo-text span { color: var(--accent); }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 12px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--card2); color: var(--text); }
+  .nav-item.active { background: var(--accent); color: #0a0a0f; font-weight: 600; }
+  .nav-item .icon { font-size: 17px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--accent3);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 10px;
+    padding: 2px 7px;
+    font-weight: 700;
+  }
+
+  .sidebar-section { margin-top: 28px; }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--card);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    padding: 32px 36px;
+    overflow-y: auto;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at 70% 0%, rgba(124,109,250,0.08) 0%, transparent 60%);
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .topbar-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .topbar-left p { color: var(--muted); font-size: 14px; margin-top: 3px; }
+  .topbar-right { display: flex; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #0a0a0f; }
+  .btn-primary:hover { background: #d4ff4a; transform: translateY(-1px); }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--card2); }
+  .notif-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; position: relative;
+  }
+  .notif-dot {
+    position: absolute; top: 8px; right: 8px;
+    width: 7px; height: 7px;
+    background: var(--accent3); border-radius: 50%;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px 22px 18px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+  .stat-card.green::after { background: var(--accent); }
+  .stat-card.purple::after { background: var(--accent2); }
+  .stat-card.red::after { background: var(--accent3); }
+  .stat-card.teal::after { background: var(--accent4); }
+
+  .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  .stat-icon.green { background: rgba(200,241,53,0.12); }
+  .stat-icon.purple { background: rgba(124,109,250,0.15); }
+  .stat-icon.red { background: rgba(255,107,107,0.15); }
+  .stat-icon.teal { background: rgba(56,217,169,0.15); }
+
+  .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 6px; letter-spacing: 0.3px; }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .stat-change {
+    font-size: 12px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .stat-change.up { color: var(--accent4); }
+  .stat-change.down { color: var(--accent3); }
+
+  /* MAIN GRID */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 24px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 700;
+  }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .tag {
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--card2);
+    color: var(--muted);
+    cursor: pointer; border: none;
+  }
+  .tag.active { background: rgba(200,241,53,0.15); color: var(--accent); }
+
+  /* ACTIVITY CHART */
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+    margin-bottom: 10px;
+  }
+  .bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    transition: height 0.6s cubic-bezier(.4,0,.2,1);
+    position: relative;
+    cursor: pointer;
+  }
+  .bar.primary { background: var(--accent); }
+  .bar.secondary { background: var(--accent2); opacity: 0.6; }
+  .bar:hover { filter: brightness(1.2); }
+  .bar-label { font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .chart-legend {
+    display: flex; gap: 14px; margin-top: 8px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* CALORIE RING */
+  .ring-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .ring-svg { position: relative; }
+  .ring-label {
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .ring-sub { font-size: 11px; color: var(--muted); }
+  .macro-row {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .macro-item {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .macro-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .macro-name { font-size: 12px; color: var(--muted); flex: 1; }
+  .macro-val { font-size: 12px; font-weight: 600; margin-right: 8px; }
+  .macro-bar-track {
+    flex: 1;
+    height: 4px; background: var(--card2); border-radius: 4px; overflow: hidden;
+  }
+  .macro-bar-fill { height: 100%; border-radius: 4px; }
+
+  /* WORKOUT CARD */
+  .workout-list { display: flex; flex-direction: column; gap: 10px; }
+  .workout-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 14px;
+    background: var(--card2);
+    border-radius: 14px;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .workout-item:hover { background: rgba(255,255,255,0.06); }
+  .workout-thumb {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .workout-info { flex: 1; }
+  .workout-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .workout-meta { font-size: 11px; color: var(--muted); }
+  .workout-kcal {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--accent);
+  }
+  .progress-pill {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .pill-done { background: rgba(200,241,53,0.15); color: var(--accent); }
+  .pill-active { background: rgba(124,109,250,0.2); color: var(--accent2); }
+  .pill-pending { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  /* MEAL PLAN */
+  .meal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .meal-card {
+    padding: 14px;
+    background: var(--card2);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .meal-card:hover { transform: scale(1.02); }
+  .meal-emoji { font-size: 24px; }
+  .meal-name { font-size: 12px; font-weight: 600; }
+  .meal-kcal { font-size: 11px; color: var(--muted); }
+  .meal-time { font-size: 10px; color: var(--accent); font-weight: 600; }
+
+  /* PROGRESS BODY */
+  .body-card {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px;
+    padding: 20px 16px;
+  }
+  .body-figure {
+    width: 80px; height: 140px;
+    background: linear-gradient(160deg, var(--accent2) 0%, var(--accent) 100%);
+    border-radius: 40px;
+    position: relative;
+    opacity: 0.85;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+  }
+  .body-metrics {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .metric-row {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .metric-name { font-size: 12px; color: var(--muted); }
+  .metric-val { font-size: 13px; font-weight: 700; }
+  .metric-bar-track {
+    width: 100%; height: 4px;
+    background: var(--card2); border-radius: 4px; overflow: hidden;
+    margin-top: 4px; margin-bottom: 8px;
+  }
+  .metric-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+
+  /* STEPS */
+  .steps-row {
+    display: flex; align-items: flex-end; gap: 4px;
+    height: 60px;
+    margin-bottom: 12px;
+  }
+  .step-bar {
+    flex: 1; border-radius: 4px 4px 0 0;
+    background: var(--card2); cursor: pointer; transition: background 0.2s;
+  }
+  .step-bar.active { background: var(--accent); }
+  .step-bar:hover { background: rgba(200,241,53,0.5); }
+  .steps-goal {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px; font-weight: 800;
+  }
+  .steps-sub { font-size: 12px; color: var(--muted); }
+
+  /* WATER */
+  .water-bubbles {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .bubble {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; cursor: pointer; transition: all 0.2s;
+    background: var(--card2);
+  }
+  .bubble.filled { background: rgba(56,217,169,0.2); border-color: var(--accent4); }
+  .bubble:hover { transform: scale(1.15); }
+
+  /* SCHEDULE */
+  .schedule-list { display: flex; flex-direction: column; gap: 10px; }
+  .schedule-item {
+    display: flex; gap: 12px; align-items: center;
+  }
+  .sched-time { font-size: 11px; color: var(--muted); width: 44px; text-align: right; flex-shrink: 0; }
+  .sched-bar {
+    width: 3px; height: 36px;
+    border-radius: 4px; flex-shrink: 0;
+  }
+  .sched-info { flex: 1; }
+  .sched-name { font-size: 13px; font-weight: 600; }
+  .sched-detail { font-size: 11px; color: var(--muted); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .stat-card, .card { animation: fadeUp 0.5s ease both; }
+  .stat-card:nth-child(1) { animation-delay: 0.05s; }
+  .stat-card:nth-child(2) { animation-delay: 0.10s; }
+  .stat-card:nth-child(3) { animation-delay: 0.15s; }
+  .stat-card:nth-child(4) { animation-delay: 0.20s; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--card2); border-radius: 10px; }
+
+  /* SVG ring */
+  .ring-container { position: relative; width: 140px; height: 140px; }
+  .ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+<script src="user-profile.js"></script>
+<script>
+  // Check authentication - redirect to login if not authenticated
+  if (!UserProfile.isLoggedIn()) {
+    window.location.href = 'index.html';
+  }
+</script>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">Nutri<span>Mind</span></div>
+    </div>
+
+    <div>
+      <div class="nav-label">Main</div>
+      <a class="nav-item active" href="#"><span class="icon">⊞</span> Dashboard</a>
+      <a class="nav-item" href="workoutpage.html"><span class="icon">🏋️</span> Workouts</a>
+      <a class="nav-item" href="nutrition.html"><span class="icon">🥗</span> Nutrition</a>
+      <a class="nav-item" href="progress.html"><span class="icon">📊</span> Progress <span class="nav-badge">New</span></a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Health</div>
+      <a class="nav-item" href="sleep.html"><span class="icon">💤</span> Sleep</a>
+      <a class="nav-item" href="hydration.html"><span class="icon">💧</span> Hydration</a>
+      <a class="nav-item" href="vitals.html"><span class="icon">❤️</span> Vitals</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Other</div>
+      <a class="nav-item" href="goals.html"><span class="icon">🎯</span> Goals</a>
+      <a class="nav-item" href="settings.html"><span class="icon">⚙️</span> Settings</a>
+      <a class="nav-item" href="ai-coach.html"><span class="icon">🤖</span> AI Coach</a>
+    </div>
+
+<div class="sidebar-bottom">
+      <div class="user-card" onclick="UserProfile.logout()" title="Click to logout">
+        <div class="avatar">JD</div>
+        <div>
+          <div class="user-name">Jordan Davis</div>
+          <div class="user-role">Premium Plan</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);font-size:18px;">⎋</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Good morning, Jordan 👋</h1>
+        <p>Tuesday, March 7, 2026 · Week 11 of your program</p>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+        <button class="btn btn-ghost">📅 This Week</button>
+        <button class="btn btn-primary">+ Log Activity</button>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card green">
+        <div class="stat-icon green">🔥</div>
+        <div class="stat-label">Calories Burned</div>
+        <div class="stat-value">2,841</div>
+        <div class="stat-change up">↑ 12% vs last week</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon purple">👟</div>
+        <div class="stat-label">Daily Steps</div>
+        <div class="stat-value">9,342</div>
+        <div class="stat-change up">↑ 6% above goal</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon red">⚖️</div>
+        <div class="stat-label">Current Weight</div>
+        <div class="stat-value">74.2<span style="font-size:16px;font-weight:400"> kg</span></div>
+        <div class="stat-change down">↓ 0.8 kg this week</div>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-icon teal">💧</div>
+        <div class="stat-label">Water Intake</div>
+        <div class="stat-value">1.8<span style="font-size:16px;font-weight:400"> L</span></div>
+        <div class="stat-change up">↑ 72% of daily goal</div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Activity Chart + Calorie Ring -->
+    <div class="grid-2">
+      <!-- Activity Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Weekly Activity</div>
+            <div class="card-sub">Calories burned vs. target</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="tag active">Week</button>
+            <button class="tag">Month</button>
+            <button class="tag">Year</button>
+          </div>
+        </div>
+        <div class="chart-bars" id="activityBars"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:2px;" id="barLabels"></div>
+        <div class="chart-legend" style="margin-top:12px;">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Calories Burned</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Target</div>
+        </div>
+      </div>
+
+      <!-- Calorie Ring -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Calories Today</div>
+            <div class="card-sub">Macronutrient breakdown</div>
+          </div>
+        </div>
+        <div class="ring-wrapper">
+          <div class="ring-container">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <!-- Track -->
+              <circle cx="70" cy="70" r="56" fill="none" stroke="var(--card2)" stroke-width="12"/>
+              <!-- Protein -->
+              <circle cx="70" cy="70" r="56" fill="none" stroke="var(--accent)" stroke-width="12"
+                stroke-dasharray="351.86" stroke-dashoffset="88"
+                stroke-linecap="round" transform="rotate(-90 70 70)"/>
+              <!-- Carbs -->
+              <circle cx="70" cy="70" r="56" fill="none" stroke="var(--accent2)" stroke-width="12"
+                stroke-dasharray="351.86" stroke-dashoffset="228"
+                stroke-linecap="round" transform="rotate(120 70 70)" opacity="0.85"/>
+              <!-- Fat -->
+              <circle cx="70" cy="70" r="56" fill="none" stroke="var(--accent3)" stroke-width="12"
+                stroke-dasharray="351.86" stroke-dashoffset="300"
+                stroke-linecap="round" transform="rotate(235 70 70)" opacity="0.75"/>
+            </svg>
+            <div class="ring-center">
+              <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;">1,842</div>
+              <div style="font-size:11px;color:var(--muted);">/ 2,200 kcal</div>
+            </div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-item">
+              <div class="macro-dot" style="background:var(--accent)"></div>
+              <div class="macro-name">Protein</div>
+              <div class="macro-val" style="color:var(--accent)">142g</div>
+              <div class="macro-bar-track"><div class="macro-bar-fill" style="width:71%;background:var(--accent)"></div></div>
+            </div>
+            <div class="macro-item">
+              <div class="macro-dot" style="background:var(--accent2)"></div>
+              <div class="macro-name">Carbohydrates</div>
+              <div class="macro-val" style="color:var(--accent2)">198g</div>
+              <div class="macro-bar-track"><div class="macro-bar-fill" style="width:65%;background:var(--accent2)"></div></div>
+            </div>
+            <div class="macro-item">
+              <div class="macro-dot" style="background:var(--accent3)"></div>
+              <div class="macro-name">Fats</div>
+              <div class="macro-val" style="color:var(--accent3)">54g</div>
+              <div class="macro-bar-track"><div class="macro-bar-fill" style="width:43%;background:var(--accent3)"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 3: Workouts + Meals + Body -->
+    <div class="grid-3">
+
+      <!-- Today's Workouts -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Today's Workouts</div>
+            <div class="card-sub">3 of 4 completed</div>
+          </div>
+          <button class="tag active">View All</button>
+        </div>
+        <div class="workout-list">
+          <div class="workout-item">
+            <div class="workout-thumb" style="background:rgba(200,241,53,0.12)">🏃</div>
+            <div class="workout-info">
+              <div class="workout-name">Morning Run</div>
+              <div class="workout-meta">5.2 km · 32 min</div>
+            </div>
+            <div style="text-align:right">
+              <div class="workout-kcal">380 kcal</div>
+              <div class="progress-pill pill-done" style="margin-top:4px">Done</div>
+            </div>
+          </div>
+          <div class="workout-item">
+            <div class="workout-thumb" style="background:rgba(124,109,250,0.15)">🏋️</div>
+            <div class="workout-info">
+              <div class="workout-name">Strength Training</div>
+              <div class="workout-meta">45 min · Upper Body</div>
+            </div>
+            <div style="text-align:right">
+              <div class="workout-kcal">290 kcal</div>
+              <div class="progress-pill pill-done" style="margin-top:4px">Done</div>
+            </div>
+          </div>
+          <div class="workout-item">
+            <div class="workout-thumb" style="background:rgba(56,217,169,0.15)">🧘</div>
+            <div class="workout-info">
+              <div class="workout-name">Yoga Flow</div>
+              <div class="workout-meta">20 min · Flexibility</div>
+            </div>
+            <div style="text-align:right">
+              <div class="workout-kcal">95 kcal</div>
+              <div class="progress-pill pill-active" style="margin-top:4px">Active</div>
+            </div>
+          </div>
+          <div class="workout-item">
+            <div class="workout-thumb" style="background:rgba(255,107,107,0.12)">🚴</div>
+            <div class="workout-info">
+              <div class="workout-name">Evening Cycling</div>
+              <div class="workout-meta">30 min · Cardio</div>
+            </div>
+            <div style="text-align:right">
+              <div class="workout-kcal">220 kcal</div>
+              <div class="progress-pill pill-pending" style="margin-top:4px">Pending</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meal Plan -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Today's Meals</div>
+            <div class="card-sub">1,842 of 2,200 kcal logged</div>
+          </div>
+        </div>
+        <div class="meal-grid">
+          <div class="meal-card">
+            <div class="meal-emoji">🥣</div>
+            <div class="meal-name">Oat Bowl</div>
+            <div class="meal-kcal">380 kcal</div>
+            <div class="meal-time">8:00 AM</div>
+          </div>
+          <div class="meal-card">
+            <div class="meal-emoji">🥑</div>
+            <div class="meal-name">Avocado Toast</div>
+            <div class="meal-kcal">290 kcal</div>
+            <div class="meal-time">10:30 AM</div>
+          </div>
+          <div class="meal-card">
+            <div class="meal-emoji">🥗</div>
+            <div class="meal-name">Grilled Salad</div>
+            <div class="meal-kcal">460 kcal</div>
+            <div class="meal-time">1:00 PM</div>
+          </div>
+          <div class="meal-card" style="border:1.5px dashed var(--border);background:transparent;justify-content:center;align-items:center;gap:4px;flex-direction:column">
+            <div style="font-size:22px">+</div>
+            <div class="meal-name" style="color:var(--muted)">Add Meal</div>
+            <div class="meal-time">Dinner</div>
+          </div>
+        </div>
+
+        <!-- Water tracker -->
+        <div style="margin-top:18px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+            <div class="card-title" style="font-size:14px;">Hydration</div>
+            <span style="font-size:12px;color:var(--accent4);">1.8L / 2.5L</span>
+          </div>
+          <div class="water-bubbles" id="waterBubbles"></div>
+        </div>
+      </div>
+
+      <!-- Body & Steps -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Steps -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:12px;">
+            <div>
+              <div class="card-title">Daily Steps</div>
+              <div class="card-sub">vs. 8,700 goal</div>
+            </div>
+          </div>
+          <div class="steps-row" id="stepsBars"></div>
+          <div class="steps-goal">9,342</div>
+          <div class="steps-sub">steps today · 93% of goal reached</div>
+          <div style="margin-top:10px;height:4px;background:var(--card2);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:93%;background:var(--accent);border-radius:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Body Metrics -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:12px;">
+            <div class="card-title">Body Metrics</div>
+          </div>
+          <div class="body-metrics">
+            <div>
+              <div class="metric-row">
+                <span class="metric-name">BMI</span>
+                <span class="metric-val" style="color:var(--accent)">22.4</span>
+              </div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:60%"></div></div>
+            </div>
+            <div>
+              <div class="metric-row">
+                <span class="metric-name">Body Fat %</span>
+                <span class="metric-val" style="color:var(--accent2)">18.2%</span>
+              </div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:36%;background:linear-gradient(90deg,var(--accent2),var(--accent3))"></div></div>
+            </div>
+            <div>
+              <div class="metric-row">
+                <span class="metric-name">Muscle Mass</span>
+                <span class="metric-val" style="color:var(--accent4)">58.6 kg</span>
+              </div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:78%;background:linear-gradient(90deg,var(--accent4),var(--accent))"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// Activity chart data
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const burned = [320,410,290,480,560,430,370];
+const target = [400,400,400,400,400,400,400];
+const maxVal = Math.max(...burned, ...target);
+
+const barsContainer = document.getElementById('activityBars');
+const labelsContainer = document.getElementById('barLabels');
+
+days.forEach((day, i) => {
+  const grp = document.createElement('div');
+  grp.className = 'bar-group';
+
+  const tBar = document.createElement('div');
+  tBar.className = 'bar secondary';
+  tBar.style.height = (target[i] / maxVal * 100) + '%';
+
+  const bBar = document.createElement('div');
+  bBar.className = 'bar primary';
+  bBar.style.height = (burned[i] / maxVal * 100) + '%';
+  bBar.title = `${day}: ${burned[i]} kcal`;
+
+  grp.appendChild(tBar);
+  grp.appendChild(bBar);
+  barsContainer.appendChild(grp);
+
+  const lbl = document.createElement('span');
+  lbl.style.cssText = 'font-size:10px;color:var(--muted);flex:1;text-align:center;';
+  lbl.textContent = day;
+  if (day === 'Tue') lbl.style.color = 'var(--accent)';
+  labelsContainer.appendChild(lbl);
+});
+
+// Water bubbles
+const wb = document.getElementById('waterBubbles');
+for (let i = 0; i < 10; i++) {
+  const b = document.createElement('div');
+  b.className = 'bubble' + (i < 7 ? ' filled' : '');
+  b.textContent = '💧';
+  b.title = `${(i+1) * 250}ml`;
+  b.onclick = () => b.classList.toggle('filled');
+  wb.appendChild(b);
+}
+
+// Steps bars
+const sb = document.getElementById('stepsBars');
+const stepData = [6200,7800,5400,9100,8700,9342,4100];
+const stepMax = Math.max(...stepData);
+stepData.forEach((s, i) => {
+  const bar = document.createElement('div');
+  bar.className = 'step-bar' + (i === 5 ? ' active' : '');
+  bar.style.height = (s / stepMax * 100) + '%';
+  bar.title = `${s.toLocaleString()} steps`;
+  sb.appendChild(bar);
+});
+</script>
+</body>
+</html>

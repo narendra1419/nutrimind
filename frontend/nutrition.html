@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NutriMind — Nutrition</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --card2: #1c1c28;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8f135;
+    --accent2: #7c6dfa;
+    --accent3: #ff6b6b;
+    --accent4: #38d9a9;
+    --text: #f0f0f8;
+    --muted: #7a7a9a;
+    --radius: 20px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR - same as dashboard */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .logo-text span { color: var(--accent); }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 12px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--card2); color: var(--text); }
+  .nav-item.active { background: var(--accent); color: #0a0a0f; font-weight: 600; }
+  .nav-item .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar-section { margin-top: 28px; }
+  .sidebar-bottom {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--card);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    padding: 32px 36px;
+    overflow-y: auto;
+    background: var(--bg);
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .topbar-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .topbar-left p { color: var(--muted); font-size: 14px; margin-top: 3px; }
+  .topbar-right { display: flex; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #0a0a0f; }
+  .btn-primary:hover { background: #d4ff4a; transform: translateY(-1px); }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--card2); }
+  .notif-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; position: relative;
+  }
+  .notif-dot {
+    position: absolute; top: 8px; right: 8px;
+    width: 7px; height: 7px;
+    background: var(--accent3); border-radius: 50%;
+  }
+
+  /* NUTRITION SPECIFIC STYLES */
+  .nutrition-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .macro-progress {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+  .macro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .macro-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .macro-calories {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .macro-calories small {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .macro-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .macro-bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .macro-bar-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  .macro-bar-track {
+    height: 8px;
+    background: var(--card2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .macro-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s;
+  }
+
+  .meal-timeline {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+  .meal-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .meal-item:last-child { border-bottom: none; }
+  .meal-time {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 60px;
+  }
+  .meal-content { flex: 1; }
+  .meal-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .meal-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .meal-nutrients {
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .food-diary {
+    grid-column: span 2;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .diary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .diary-date {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .date-nav {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--card2);
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .food-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .food-table th {
+    text-align: left;
+    padding: 12px 8px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  .food-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .food-table tr:last-child td { border-bottom: none; }
+
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .recipe-card {
+    background: var(--card2);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .recipe-card:hover { transform: translateY(-4px); }
+  .recipe-image {
+    height: 120px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+  .recipe-content {
+    padding: 16px;
+  }
+  .recipe-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .recipe-meta {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 12px;
+  }
+</style>
+</head>
+<body>
+<script src="user-profile.js"></script>
+<script>
+  // Check authentication - redirect to login if not authenticated
+  if (!UserProfile.isLoggedIn()) {
+    window.location.href = 'index.html';
+  }
+</script>
+<script>
+// Meal Database - 7+ different options for each meal type
+const mealDatabase = {
+  breakfast: [
+    { name: "Oat Bowl with Berries", desc: "Oats, berries, honey, almond milk", calories: 380, protein: 18, carbs: 52, fats: 12, emoji: "🥣" },
+    { name: "Avocado Toast", desc: "Whole grain toast, avocado, eggs", descAlt: "Whole grain toast, avocado, poached eggs", calories: 420, protein: 22, carbs: 35, fats: 24, emoji: "🥑" },
+    { name: "Greek Yogurt Parfait", desc: "Greek yogurt, granola, fresh berries", descAlt: "Greek yogurt, granola, fresh berries", calories: 350, protein: 24, carbs: 38, fats: 14, emoji: "🥛" },
+    { name: "Protein Pancakes", desc: "Protein pancakes with maple syrup", descAlt: "Protein pancakes with fresh fruit", calories: 450, protein: 32, carbs: 48, fats: 16, emoji: "🥞" },
+    { name: "Egg White Omelette", desc: "Egg whites, spinach, feta cheese", descAlt: "Egg whites, spinach, tomatoes", calories: 280, protein: 28, carbs: 8, fats: 16, emoji: "🍳" },
+    { name: "Smoothie Bowl", desc: "Banana, spinach, protein powder", descAlt: "Mixed berries, almond butter, chia seeds", calories: 380, protein: 20, carbs: 45, fats: 14, emoji: "🍌" },
+    { name: "Breakfast Burrito", desc: "Whole wheat tortilla, eggs, beans", descAlt: "Whole wheat tortilla, eggs, vegetables", calories: 480, protein: 26, carbs: 42, fats: 22, emoji: "🌯" }
+  ],
+  snack1: [
+    { name: "Protein Shake", desc: "Whey protein, banana, peanut butter", calories: 290, protein: 32, carbs: 18, fats: 10, emoji: "🥤" },
+    { name: "Greek Yogurt", desc: "With granola and blueberries", calories: 210, protein: 18, carbs: 22, fats: 6, emoji: "🥛" },
+    { name: "Mixed Nuts", desc: "Almonds, walnuts, cashews", calories: 180, protein: 6, carbs: 8, fats: 16, emoji: "🥜" },
+    { name: "Apple & Peanut Butter", desc: "Fresh apple with peanut butter", calories: 220, protein: 8, carbs: 24, fats: 12, emoji: "🍎" },
+    { name: "Protein Bar", desc: "High protein energy bar", calories: 250, protein: 20, carbs: 28, fats: 8, emoji: "🍫" },
+    { name: "Cottage Cheese", desc: "Low-fat cottage cheese", calories: 160, protein: 28, carbs: 6, fats: 2, emoji: "🧀" },
+    { name: "Veggie Sticks & Hummus", desc: "Carrots, celery with hummus", calories: 180, protein: 8, carbs: 20, fats: 8, emoji: "🥕" }
+  ],
+  lunch: [
+    { name: "Grilled Chicken Salad", desc: "Chicken breast, mixed greens, avocado", calories: 460, protein: 42, carbs: 24, fats: 22, emoji: "🥗" },
+    { name: "Quinoa Buddha Bowl", desc: "Quinoa, chickpeas, roasted veggies", calories: 520, protein: 18, carbs: 65, fats: 20, emoji: "🥙" },
+    { name: "Turkey Wrap", desc: "Whole wheat wrap, turkey, vegetables", calories: 420, protein: 32, carbs: 38, fats: 16, emoji: "🌯" },
+    { name: "Tuna Salad", desc: "Tuna, mixed greens, light dressing", calories: 380, protein: 38, carbs: 12, fats: 20, emoji: "🐟" },
+    { name: "Chicken Stir Fry", desc: "Chicken, brown rice, mixed vegetables", calories: 540, protein: 36, carbs: 55, fats: 18, emoji: "🍳" },
+    { name: "Mediterranean Bowl", desc: "Falafel, hummus, tabbouleh, pita", calories: 580, protein: 16, carbs: 62, fats: 28, emoji: "🧆" },
+    { name: "Salmon Salad", desc: "Grilled salmon, quinoa, asparagus", calories: 520, protein: 40, carbs: 28, fats: 26, emoji: "🍣" }
+  ],
+  snack2: [
+    { name: "Greek Yogurt", desc: "With granola and blueberries", calories: 210, protein: 18, carbs: 22, fats: 6, emoji: "🥛" },
+    { name: "Protein Shake", desc: "Whey protein, banana, peanut butter", calories: 290, protein: 32, carbs: 18, fats: 10, emoji: "🥤" },
+    { name: "Trail Mix", desc: "Nuts, dried fruits, dark chocolate", calories: 240, protein: 8, carbs: 22, fats: 14, emoji: "🥜" },
+    { name: "Rice Cakes & Almond Butter", desc: "Brown rice cakes with almond butter", calories: 200, protein: 6, carbs: 24, fats: 10, emoji: "🍘" },
+    { name: "Boiled Eggs", desc: "Two hard-boiled eggs", calories: 140, protein: 12, carbs: 1, fats: 10, emoji: "🥚" },
+    { name: "Fruit Salad", desc: "Mixed seasonal fruits", calories: 150, protein: 2, carbs: 36, fats: 0, emoji: "🍓" },
+    { name: "Cottage Cheese & Pineapple", desc: "Cottage cheese with fresh pineapple", calories: 180, protein: 20, carbs: 18, fats: 2, emoji: "🍍" }
+  ],
+  dinner: [
+    { name: "Salmon with Quinoa", desc: "Salmon with quinoa & roasted vegetables", calories: 520, protein: 42, carbs: 38, fats: 22, emoji: "🐟" },
+    { name: "Grilled Chicken & Rice", desc: "Chicken breast, brown rice, broccoli", calories: 540, protein: 48, carbs: 52, fats: 14, emoji: "🍗" },
+    { name: "Beef Stir Fry", desc: "Lean beef, vegetables, jasmine rice", calories: 580, protein: 40, carbs: 48, fats: 24, emoji: "🥩" },
+    { name: "Shrimp Pasta", desc: "Whole wheat pasta, shrimp, garlic sauce", calories: 480, protein: 34, carbs: 52, fats: 14, emoji: "🍝" },
+    { name: "Turkey Meatballs", desc: "Turkey meatballs with marinara & zucchini", calories: 420, protein: 36, carbs: 24, fats: 20, emoji: "🧆" },
+    { name: "Grilled Fish Tacos", desc: "White fish, corn tortillas, slaw", calories: 460, protein: 32, carbs: 38, fats: 18, emoji: "🌮" },
+    { name: "Lamb with Roasted Potatoes", desc: "Grilled lamb, roasted potatoes, asparagus", calories: 620, protein: 38, carbs: 42, fats: 30, emoji: "🍖" }
+  ]
+};
+
+// Get day of week (0 = Sunday, 1 = Monday, etc.)
+function getDayOfWeek() {
+  return new Date().getDay();
+}
+
+// Get meals for today based on day of week
+function getTodaysMeals() {
+  const dayIndex = getDayOfWeek();
+  
+  return {
+    breakfast: mealDatabase.breakfast[dayIndex % mealDatabase.breakfast.length],
+    snack1: mealDatabase.snack1[dayIndex % mealDatabase.snack1.length],
+    lunch: mealDatabase.lunch[dayIndex % mealDatabase.lunch.length],
+    snack2: mealDatabase.snack2[dayIndex % mealDatabase.snack2.length],
+    dinner: mealDatabase.dinner[dayIndex % mealDatabase.dinner.length]
+  };
+}
+
+// Render meals to the page
+function renderTodaysMeals() {
+  const meals = getTodaysMeals();
+  
+  // Update meal timeline
+  const mealTimeline = document.querySelector('.meal-timeline');
+  if (mealTimeline) {
+    mealTimeline.innerHTML = `
+      <div class="macro-header" style="margin-bottom: 0;">
+        <div class="macro-title">Today's Meals</div>
+        <button class="btn btn-ghost" style="padding: 6px 12px;">Add</button>
+      </div>
+      
+      <div class="meal-item">
+        <div class="meal-time">08:00</div>
+        <div class="meal-content">
+          <div class="meal-name">Breakfast - ${meals.breakfast.name}</div>
+          <div class="meal-desc">${meals.breakfast.desc}</div>
+          <div class="meal-nutrients">
+            <span>${meals.breakfast.calories} kcal</span>
+            <span>P: ${meals.breakfast.protein}g</span>
+            <span>C: ${meals.breakfast.carbs}g</span>
+            <span>F: ${meals.breakfast.fats}g</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="meal-item">
+        <div class="meal-time">10:30</div>
+        <div class="meal-content">
+          <div class="meal-name">Snack - ${meals.snack1.name}</div>
+          <div class="meal-desc">${meals.snack1.desc}</div>
+          <div class="meal-nutrients">
+            <span>${meals.snack1.calories} kcal</span>
+            <span>P: ${meals.snack1.protein}g</span>
+            <span>C: ${meals.snack1.carbs}g</span>
+            <span>F: ${meals.snack1.fats}g</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="meal-item">
+        <div class="meal-time">13:00</div>
+        <div class="meal-content">
+          <div class="meal-name">Lunch - ${meals.lunch.name}</div>
+          <div class="meal-desc">${meals.lunch.desc}</div>
+          <div class="meal-nutrients">
+            <span>${meals.lunch.calories} kcal</span>
+            <span>P: ${meals.lunch.protein}g</span>
+            <span>C: ${meals.lunch.carbs}g</span>
+            <span>F: ${meals.lunch.fats}g</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="meal-item">
+        <div class="meal-time">16:00</div>
+        <div class="meal-content">
+          <div class="meal-name">Snack - ${meals.snack2.name}</div>
+          <div class="meal-desc">${meals.snack2.desc}</div>
+          <div class="meal-nutrients">
+            <span>${meals.snack2.calories} kcal</span>
+            <span>P: ${meals.snack2.protein}g</span>
+            <span>C: ${meals.snack2.carbs}g</span>
+            <span>F: ${meals.snack2.fats}g</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="meal-item" style="opacity: 0.5;">
+        <div class="meal-time">19:30</div>
+        <div class="meal-content">
+          <div class="meal-name">Dinner - ${meals.dinner.name}</div>
+          <div class="meal-desc">${meals.dinner.desc}</div>
+          <div class="meal-nutrients">
+            <span>${meals.dinner.calories} kcal</span>
+            <span>P: ${meals.dinner.protein}g</span>
+            <span>C: ${meals.dinner.carbs}g</span>
+            <span>F: ${meals.dinner.fats}g</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Update food diary table
+  const foodTableBody = document.querySelector('.food-table tbody');
+  if (foodTableBody) {
+    const totalCalories = meals.breakfast.calories + meals.snack1.calories + meals.lunch.calories + meals.snack2.calories;
+    const totalProtein = meals.breakfast.protein + meals.snack1.protein + meals.lunch.protein + meals.snack2.protein;
+    const totalCarbs = meals.breakfast.carbs + meals.snack1.carbs + meals.lunch.carbs + meals.snack2.carbs;
+    const totalFats = meals.breakfast.fats + meals.snack1.fats + meals.lunch.fats + meals.snack2.fats;
+    
+    foodTableBody.innerHTML = `
+      <tr>
+        <td>Breakfast</td>
+        <td>${meals.breakfast.emoji} ${meals.breakfast.name}</td>
+        <td>1 serving</td>
+        <td>${meals.breakfast.calories}</td>
+        <td>${meals.breakfast.protein}g</td>
+        <td>${meals.breakfast.carbs}g</td>
+        <td>${meals.breakfast.fats}g</td>
+        <td>✎</td>
+      </tr>
+      <tr>
+        <td>Snack</td>
+        <td>${meals.snack1.emoji} ${meals.snack1.name}</td>
+        <td>1 serving</td>
+        <td>${meals.snack1.calories}</td>
+        <td>${meals.snack1.protein}g</td>
+        <td>${meals.snack1.carbs}g</td>
+        <td>${meals.snack1.fats}g</td>
+        <td>✎</td>
+      </tr>
+      <tr>
+        <td>Lunch</td>
+        <td>${meals.lunch.emoji} ${meals.lunch.name}</td>
+        <td>1 plate</td>
+        <td>${meals.lunch.calories}</td>
+        <td>${meals.lunch.protein}g</td>
+        <td>${meals.lunch.carbs}g</td>
+        <td>${meals.lunch.fats}g</td>
+        <td>✎</td>
+      </tr>
+      <tr>
+        <td>Snack</td>
+        <td>${meals.snack2.emoji} ${meals.snack2.name}</td>
+        <td>1 cup</td>
+        <td>${meals.snack2.calories}</td>
+        <td>${meals.snack2.protein}g</td>
+        <td>${meals.snack2.carbs}g</td>
+        <td>${meals.snack2.fats}g</td>
+        <td>✎</td>
+      </tr>
+      <tr>
+        <td>Dinner</td>
+        <td>${meals.dinner.emoji} ${meals.dinner.name}</td>
+        <td>1 plate</td>
+        <td>${meals.dinner.calories}</td>
+        <td>${meals.dinner.protein}g</td>
+        <td>${meals.dinner.carbs}g</td>
+        <td>${meals.dinner.fats}g</td>
+        <td>✎</td>
+      </tr>
+    `;
+    
+    // Update macro progress - calculate new totals
+    const newTotalCalories = totalCalories + meals.dinner.calories;
+    const newTotalProtein = totalProtein + meals.dinner.protein;
+    const newTotalCarbs = totalCarbs + meals.dinner.carbs;
+    const newTotalFats = totalFats + meals.dinner.fats;
+    
+    // Update the calories display
+    const calorieDisplay = document.querySelector('.macro-calories');
+    if (calorieDisplay) {
+      calorieDisplay.innerHTML = `${newTotalCalories.toLocaleString()} <small>/ 2,200 kcal</small>`;
+    }
+    
+    // Update macro bars
+    updateMacroBars(newTotalCalories, newTotalProtein, newTotalCarbs, newTotalFats);
+  }
+}
+
+// Update macro progress bars
+function updateMacroBars(calories, protein, carbs, fats) {
+  const proteinBar = document.querySelector('.macro-bar-item:nth-child(1) .macro-bar-fill');
+  const carbsBar = document.querySelector('.macro-bar-item:nth-child(2) .macro-bar-fill');
+  const fatsBar = document.querySelector('.macro-bar-item:nth-child(3) .macro-bar-fill');
+  
+  if (proteinBar) {
+    proteinBar.style.width = Math.min((protein / 180) * 100, 100) + '%';
+  }
+  if (carbsBar) {
+    carbsBar.style.width = Math.min((carbs / 280) * 100, 100) + '%';
+  }
+  if (fatsBar) {
+    fatsBar.style.width = Math.min((fats / 70) * 100, 100) + '%';
+  }
+  
+  // Update macro header values
+  const proteinHeader = document.querySelector('.macro-bar-item:nth-child(1) .macro-bar-header span:last-child');
+  const carbsHeader = document.querySelector('.macro-bar-item:nth-child(2) .macro-bar-header span:last-child');
+  const fatsHeader = document.querySelector('.macro-bar-item:nth-child(3) .macro-bar-header span:last-child');
+  
+  if (proteinHeader) proteinHeader.textContent = `${protein}g / 180g`;
+  if (carbsHeader) carbsHeader.textContent = `${carbs}g / 280g`;
+  if (fatsHeader) fatsHeader.textContent = `${fats}g / 70g`;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  renderTodaysMeals();
+});
+</script>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">Nutri<span>Mind</span></div>
+    </div>
+
+    <div>
+      <div class="nav-label">Main</div>
+      <a class="nav-item" href="nutrimind-fitness-app.html"><span class="icon">⊞</span> Dashboard</a>
+      <a class="nav-item" href="workoutpage.html"><span class="icon">🏋️</span> Workouts</a>
+      <a class="nav-item active" href="nutrition.html"><span class="icon">🥗</span> Nutrition</a>
+      <a class="nav-item" href="progress.html"><span class="icon">📊</span> Progress</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Health</div>
+      <a class="nav-item" href="sleep.html"><span class="icon">💤</span> Sleep</a>
+      <a class="nav-item" href="hydration.html"><span class="icon">💧</span> Hydration</a>
+      <a class="nav-item" href="vitals.html"><span class="icon">❤️</span> Vitals</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Other</div>
+      <a class="nav-item" href="goals.html"><span class="icon">🎯</span> Goals</a>
+      <a class="nav-item" href="settings.html"><span class="icon">⚙️</span> Settings</a>
+      <a class="nav-item" href="ai-coach.html"><span class="icon">🤖</span> AI Coach</a>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-card">
+        <div class="avatar">JD</div>
+        <div>
+          <div class="user-name">Jordan Davis</div>
+          <div class="user-role">Premium Plan</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);font-size:18px;">⋮</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Nutrition</h1>
+        <p>Track your meals and macros</p>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+        <button class="btn btn-ghost">📊 Reports</button>
+        <button class="btn btn-primary">+ Log Meal</button>
+      </div>
+    </div>
+
+    <!-- Main Nutrition Grid -->
+    <div class="nutrition-grid">
+      <!-- Macro Progress -->
+      <div class="macro-progress">
+        <div class="macro-header">
+          <div class="macro-title">Daily Macros</div>
+          <div class="macro-calories">1,842 <small>/ 2,200 kcal</small></div>
+        </div>
+        
+        <div class="macro-bars">
+          <div class="macro-bar-item">
+            <div class="macro-bar-header">
+              <span>Protein</span>
+              <span>142g / 180g</span>
+            </div>
+            <div class="macro-bar-track">
+              <div class="macro-bar-fill" style="width:79%; background: var(--accent);"></div>
+            </div>
+          </div>
+          <div class="macro-bar-item">
+            <div class="macro-bar-header">
+              <span>Carbs</span>
+              <span>198g / 280g</span>
+            </div>
+            <div class="macro-bar-track">
+              <div class="macro-bar-fill" style="width:71%; background: var(--accent2);"></div>
+            </div>
+          </div>
+          <div class="macro-bar-item">
+            <div class="macro-bar-header">
+              <span>Fats</span>
+              <span>54g / 70g</span>
+            </div>
+            <div class="macro-bar-track">
+              <div class="macro-bar-fill" style="width:77%; background: var(--accent3);"></div>
+            </div>
+          </div>
+          <div class="macro-bar-item">
+            <div class="macro-bar-header">
+              <span>Fiber</span>
+              <span>24g / 30g</span>
+            </div>
+            <div class="macro-bar-track">
+              <div class="macro-bar-fill" style="width:80%; background: var(--accent4);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+          <div>
+            <div style="font-size: 12px; color: var(--muted);">Water Intake</div>
+            <div style="font-size: 18px; font-weight: 700;">1.8L <small style="font-size: 12px; color: var(--muted);">/ 2.5L</small></div>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--muted);">Sugar</div>
+            <div style="font-size: 18px; font-weight: 700;">32g <small style="font-size: 12px; color: var(--muted);">/ 40g</small></div>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--muted);">Sodium</div>
+            <div style="font-size: 18px; font-weight: 700;">1.8g <small style="font-size: 12px; color: var(--muted);">/ 2.3g</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meal Timeline -->
+      <div class="meal-timeline">
+        <div class="macro-header" style="margin-bottom: 0;">
+          <div class="macro-title">Today's Meals</div>
+          <button class="btn btn-ghost" style="padding: 6px 12px;">Add</button>
+        </div>
+        
+        <div class="meal-item">
+          <div class="meal-time">08:00</div>
+          <div class="meal-content">
+            <div class="meal-name">Breakfast - Oat Bowl</div>
+            <div class="meal-desc">Oats, berries, honey, almond milk</div>
+            <div class="meal-nutrients">
+              <span>380 kcal</span>
+              <span>P: 18g</span>
+              <span>C: 52g</span>
+              <span>F: 12g</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="meal-item">
+          <div class="meal-time">10:30</div>
+          <div class="meal-content">
+            <div class="meal-name">Snack - Protein Shake</div>
+            <div class="meal-desc">Whey protein, banana, peanut butter</div>
+            <div class="meal-nutrients">
+              <span>290 kcal</span>
+              <span>P: 32g</span>
+              <span>C: 18g</span>
+              <span>F: 10g</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="meal-item">
+          <div class="meal-time">13:00</div>
+          <div class="meal-content">
+            <div class="meal-name">Lunch - Grilled Chicken Salad</div>
+            <div class="meal-desc">Chicken breast, mixed greens, avocado</div>
+            <div class="meal-nutrients">
+              <span>460 kcal</span>
+              <span>P: 42g</span>
+              <span>C: 24g</span>
+              <span>F: 22g</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="meal-item">
+          <div class="meal-time">16:00</div>
+          <div class="meal-content">
+            <div class="meal-name">Snack - Greek Yogurt</div>
+            <div class="meal-desc">With granola and blueberries</div>
+            <div class="meal-nutrients">
+              <span>210 kcal</span>
+              <span>P: 18g</span>
+              <span>C: 22g</span>
+              <span>F: 6g</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="meal-item" style="opacity: 0.5;">
+          <div class="meal-time">19:30</div>
+          <div class="meal-content">
+            <div class="meal-name">Dinner - Not logged yet</div>
+            <div class="meal-desc">Tap to add your dinner meal</div>
+            <div class="meal-nutrients">
+              <span style="color: var(--accent);">+ Add meal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Food Diary -->
+    <div class="food-diary">
+      <div class="diary-header">
+        <div class="macro-title">Food Diary</div>
+        <div class="diary-date">
+          <button class="date-nav">←</button>
+          <span>March 7, 2026</span>
+          <button class="date-nav">→</button>
+        </div>
+      </div>
+
+      <table class="food-table">
+        <thead>
+          <tr>
+            <th>Meal</th>
+            <th>Food Item</th>
+            <th>Serving</th>
+            <th>Calories</th>
+            <th>Protein</th>
+            <th>Carbs</th>
+            <th>Fats</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Breakfast</td>
+            <td>Oatmeal with Berries</td>
+            <td>1 bowl</td>
+            <td>380</td>
+            <td>18g</td>
+            <td>52g</td>
+            <td>12g</td>
+            <td>✎</td>
+          </tr>
+          <tr>
+            <td>Snack</td>
+            <td>Protein Shake</td>
+            <td>1 serving</td>
+            <td>290</td>
+            <td>32g</td>
+            <td>18g</td>
+            <td>10g</td>
+            <td>✎</td>
+          </tr>
+          <tr>
+            <td>Lunch</td>
+            <td>Grilled Chicken Salad</td>
+            <td>1 plate</td>
+            <td>460</td>
+            <td>42g</td>
+            <td>24g</td>
+            <td>22g</td>
+            <td>✎</td>
+          </tr>
+          <tr>
+            <td>Snack</td>
+            <td>Greek Yogurt</td>
+            <td>1 cup</td>
+            <td>210</td>
+            <td>18g</td>
+            <td>22g</td>
+            <td>6g</td>
+            <td>✎</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recommended Recipes -->
+    <div class="macro-header" style="margin: 20px 0;">
+      <div class="macro-title">Recommended Recipes</div>
+      <button class="btn btn-ghost">View All</button>
+    </div>
+
+    <div class="recipe-grid">
+      <div class="recipe-card">
+        <div class="recipe-image">🥑</div>
+        <div class="recipe-content">
+          <div class="recipe-name">Avocado Toast</div>
+          <div class="recipe-meta">
+            <span>290 kcal</span>
+            <span>10 min</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-image">🥗</div>
+        <div class="recipe-content">
+          <div class="recipe-name">Quinoa Bowl</div>
+          <div class="recipe-meta">
+            <span>420 kcal</span>
+            <span>20 min</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-image">🍣</div>
+        <div class="recipe-content">
+          <div class="recipe-name">Salmon & Veggies</div>
+          <div class="recipe-meta">
+            <span>520 kcal</span>
+            <span>25 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

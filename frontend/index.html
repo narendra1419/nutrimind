@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — NutriMind</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --card: #16161f;
+      --card2: #1c1c28;
+      --border: rgba(255,255,255,0.07);
+      --accent: #c8f135;
+      --accent2: #7c6dfa;
+      --accent3: #ff6b6b;
+      --accent4: #38d9a9;
+      --text: #f0f0f8;
+      --muted: #7a7a9a;
+      --radius: 20px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse at 20% 80%, rgba(124,109,250,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(200,241,53,0.08) 0%, transparent 50%);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      padding: 40px 36px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: var(--accent);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .logo-text span { color: var(--accent); }
+
+    .login-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .login-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,241,53,0.1);
+    }
+    .form-input::placeholder {
+      color: var(--muted);
+    }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .checkbox-wrapper input {
+      display: none;
+    }
+    .checkbox-custom {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--muted);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .checkbox-wrapper input:checked + .checkbox-custom {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .checkbox-custom::after {
+      content: '✓';
+      font-size: 11px;
+      color: #0a0a0f;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .checkbox-wrapper input:checked + .checkbox-custom::after {
+      opacity: 1;
+    }
+    .checkbox-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .forgot-link {
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .btn {
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      gap: 7px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; 
+      font-weight: 600;
+      cursor: pointer; 
+      border: none; 
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-primary { 
+      background: var(--accent); 
+      color: #0a0a0f; 
+    }
+    .btn-primary:hover { 
+      background: #d4ff4a; 
+      transform: translateY(-1px); 
+      box-shadow: 0 8px 24px rgba(200,241,53,0.25);
+    }
+    .btn-primary:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+    }
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider span {
+      padding: 0 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .social-login {
+      display: flex;
+      gap: 12px;
+    }
+    .social-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .social-btn:hover {
+      background: var(--surface);
+      border-color: var(--muted);
+    }
+    .social-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .login-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Sign Up Form */
+    .signup-form {
+      display: none;
+    }
+    .signup-form.active {
+      display: block;
+    }
+    .login-form.hidden {
+      display: none;
+    }
+    
+    .password-requirements {
+      background: var(--card2);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .password-requirements ul {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0;
+    }
+    .password-requirements li {
+      padding: 3px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .password-requirements li::before {
+      content: '○';
+      color: var(--accent);
+    }
+    .password-requirements li.valid::before {
+      content: '●';
+    }
+    .password-requirements li.valid {
+      color: var(--accent4);
+    }
+    
+    .confirm-password-group {
+      margin-bottom: 20px;
+    }
+    
+    .terms-wrapper {
+      margin-bottom: 24px;
+    }
+
+    /* Success state */
+    .login-success {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .login-success.show {
+      display: block;
+    }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: rgba(200,241,53,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 20px;
+    }
+    .success-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .success-info {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .success-info strong {
+      color: var(--text);
+    }
+    .btn-dashboard {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--accent); 
+      color: #0a0a0f;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; 
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-dashboard:hover {
+      background: #d4ff4a;
+      transform: translateY(-1px);
+    }
+
+    .login-form.hidden {
+      display: none;
+    }
+
+    /* Error message */
+    .error-message {
+      background: rgba(255,107,107,0.1);
+      border: 1px solid var(--accent3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      color: var(--accent3);
+      font-size: 13px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+
+    /* Demo info */
+    .demo-info {
+      background: rgba(124,109,250,0.1);
+      border: 1px solid rgba(124,109,250,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .demo-info strong {
+      color: var(--accent2);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .login-card {
+      animation: fadeUp 0.5s ease both;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="logo">
+          <div class="logo-icon">🧠</div>
+          <div class="logo-text">Nutri<span>Mind</span></div>
+        </div>
+        <h1 class="login-title">Welcome back</h1>
+        <p class="login-subtitle">Sign in to continue your fitness journey</p>
+      </div>
+
+      <!-- Login Form -->
+      <form class="login-form" id="loginForm">
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" class="form-input" id="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="form-options">
+          <label class="checkbox-wrapper">
+            <input type="checkbox" id="rememberMe">
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-label">Remember me</span>
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+
+        <div class="demo-info">
+          <strong>Demo:</strong> Email: jordan@example.com | Password: password123
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="login-footer">
+          Don't have an account? <a href="#" id="showSignup">Sign up</a>
+        </p>
+      </form>
+
+      <!-- Login Success -->
+      <div class="login-success" id="loginSuccess">
+        <div class="success-icon">✓</div>
+        <h2 class="success-title">Login Successful!</h2>
+        <p class="success-info">
+          Welcome back, <strong id="loggedInName">Jordan Davis</strong><br>
+          <span id="loggedInPlan">Premium Plan</span>
+        </p>
+        <a href="nutrimind-fitness-app.html" class="btn-dashboard">
+          Go to Dashboard →
+        </a>
+      </div>
+
+      <!-- Sign Up Form -->
+      <form class="signup-form" id="signupForm">
+        <div class="error-message" id="signupError"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupName">Full Name</label>
+          <input type="text" class="form-input" id="signupName" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupEmail">Email Address</label>
+          <input type="email" class="form-input" id="signupEmail" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupPassword">Password</label>
+          <input type="password" class="form-input" id="signupPassword" placeholder="Create a password" required>
+          <div class="password-requirements">
+            <span>Password must contain:</span>
+            <ul>
+              <li id="req-length">At least 8 characters</li>
+              <li id="req-letter">At least one letter</li>
+              <li id="req-number">At least one number</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="form-group confirm-password-group">
+          <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
+          <input type="password" class="form-input" id="signupConfirmPassword" placeholder="Confirm your password" required>
+        </div>
+
+        <div class="terms-wrapper">
+          <label class="checkbox-wrapper">
+            <input type="checkbox" id="acceptTerms" required>
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-label">I agree to the <a href="#" style="color: var(--accent);">Terms of Service</a> and <a href="#" style="color: var(--accent);">Privacy Policy</a></span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="signupBtn">Create Account</button>
+
+        <p class="login-footer">
+          Already have an account? <a href="#" id="showLogin">Sign in</a>
+        </p>
+      </form>
+
+      <!-- Sign Up Success -->
+      <div class="login-success" id="signupSuccess">
+        <div class="success-icon">🎉</div>
+        <h2 class="success-title">Account Created!</h2>
+        <p class="success-info">
+          Welcome to NutriMind, <strong id="signedUpName">User</strong>!<br>
+          Start your fitness journey today.
+        </p>
+        <a href="nutrimind-fitness-app.html" class="btn-dashboard">
+          Get Started →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Use local Supabase library -->
+  <script src="supabase-lib.js"></script>
+  <script src="supabase.js"></script>
+  <!-- C# Backend API Client -->
+  <script src="api-client.js"></script>
+  <script src="user-profile.js"></script>
+  <script>
+    // Check if already logged in
+    document.addEventListener('DOMContentLoaded', function() {
+      if (UserProfile.isLoggedIn()) {
+        showLoggedInState();
+      }
+    });
+
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const loginSuccess = document.getElementById('loginSuccess');
+
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+
+      // Clear previous errors
+      errorMessage.classList.remove('show');
+
+      // Show loading state
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+
+      // Attempt login
+      try {
+        const result = await UserProfile.login(email, password, rememberMe);
+
+        if (result.success) {
+          showLoggedInState();
+        } else {
+          errorMessage.textContent = result.message;
+          errorMessage.classList.add('show');
+        }
+      } catch (error) {
+        errorMessage.textContent = 'An error occurred. Please try again.';
+        errorMessage.classList.add('show');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+      }
+    });
+
+    function showLoggedInState() {
+      const name = UserProfile.getUserName();
+      const plan = UserProfile.getUserPlan();
+      
+      document.getElementById('loggedInName').textContent = name;
+      document.getElementById('loggedInPlan').textContent = plan;
+      
+      loginForm.classList.add('hidden');
+      loginSuccess.classList.add('show');
+    }
+
+    // Sign up form elements
+    const signupForm = document.getElementById('signupForm');
+    const signupError = document.getElementById('signupError');
+    const signupSuccess = document.getElementById('signupSuccess');
+    const showSignup = document.getElementById('showSignup');
+    const showLogin = document.getElementById('showLogin');
+    const signupPassword = document.getElementById('signupPassword');
+    const loginTitle = document.querySelector('.login-title');
+    const loginSubtitle = document.querySelector('.login-subtitle');
+
+    // Toggle to signup form
+    showSignup.addEventListener('click', function(e) {
+      e.preventDefault();
+      loginForm.classList.add('hidden');
+      signupForm.classList.add('active');
+      loginTitle.textContent = 'Create Account';
+      loginSubtitle.textContent = 'Start your fitness journey today';
+    });
+
+    // Toggle to login form
+    showLogin.addEventListener('click', function(e) {
+      e.preventDefault();
+      signupForm.classList.remove('active');
+      loginForm.classList.remove('hidden');
+      loginTitle.textContent = 'Welcome back';
+      loginSubtitle.textContent = 'Sign in to continue your fitness journey';
+    });
+
+    // Password validation
+    signupPassword.addEventListener('input', function() {
+      const password = this.value;
+      
+      // Check length
+      document.getElementById('req-length').classList.toggle('valid', password.length >= 8);
+      // Check letter
+      document.getElementById('req-letter').classList.toggle('valid', /[a-zA-Z]/.test(password));
+      // Check number
+      document.getElementById('req-number').classList.toggle('valid', /[0-9]/.test(password));
+    });
+
+    // Sign up form submission
+    signupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupConfirmPassword').value;
+      const acceptTerms = document.getElementById('acceptTerms').checked;
+
+      // Clear previous errors
+      signupError.classList.remove('show');
+
+      // Validate password
+      if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+        signupError.textContent = 'Please meet all password requirements';
+        signupError.classList.add('show');
+        return;
+      }
+
+      // Check password match
+      if (password !== confirmPassword) {
+        signupError.textContent = 'Passwords do not match';
+        signupError.classList.add('show');
+        return;
+      }
+
+      // Check terms
+      if (!acceptTerms) {
+        signupError.textContent = 'Please accept the Terms of Service';
+        signupError.classList.add('show');
+        return;
+      }
+
+      // Show loading state
+      const signupBtn = document.getElementById('signupBtn');
+      signupBtn.disabled = true;
+      signupBtn.textContent = 'Creating account...';
+
+      // Attempt signup
+      try {
+        const result = await UserProfile.signup(name, email, password);
+
+        if (result.success) {
+          document.getElementById('signedUpName').textContent = name;
+          
+          // Handle email confirmation
+          if (result.needsEmailConfirmation) {
+            signupError.textContent = result.message;
+            signupError.classList.add('show');
+          } else {
+            signupForm.classList.remove('active');
+            signupSuccess.classList.add('show');
+          }
+        } else {
+          signupError.textContent = result.message;
+          signupError.classList.add('show');
+        }
+      } catch (error) {
+        signupError.textContent = 'An error occurred. Please try again.';
+        signupError.classList.add('show');
+      } finally {
+        signupBtn.disabled = false;
+        signupBtn.textContent = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>
+

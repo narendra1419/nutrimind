@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NutriMind — AI Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --card2: #1c1c28;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8f135;
+    --accent2: #7c6dfa;
+    --accent3: #ff6b6b;
+    --accent4: #38d9a9;
+    --text: #f0f0f8;
+    --muted: #7a7a9a;
+    --radius: 20px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .logo-text span { color: var(--accent); }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 12px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--card2); color: var(--text); }
+  .nav-item.active { background: var(--accent); color: #0a0a0f; font-weight: 600; }
+  .nav-item .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar-section { margin-top: 28px; }
+  .sidebar-bottom {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--card);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    padding: 32px 36px;
+    overflow-y: auto;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at 30% 0%, rgba(124,109,250,0.08) 0%, transparent 60%);
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .topbar-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .topbar-left p { color: var(--muted); font-size: 14px; margin-top: 3px; }
+  .topbar-right { display: flex; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #0a0a0f; }
+  .btn-primary:hover { background: #d4ff4a; transform: translateY(-1px); }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--card2); }
+  .notif-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; position: relative;
+  }
+  .notif-dot {
+    position: absolute; top: 8px; right: 8px;
+    width: 7px; height: 7px;
+    background: var(--accent3); border-radius: 50%;
+  }
+
+  /* AI COACH SPECIFIC STYLES */
+  .coach-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+  }
+
+  /* Chat Section */
+  .chat-container {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px);
+    min-height: 500px;
+  }
+
+  .chat-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .coach-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    position: relative;
+  }
+
+  .coach-status {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent4);
+    border-radius: 50%;
+    border: 2px solid var(--card);
+  }
+
+  .coach-info h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .coach-info p {
+    font-size: 12px;
+    color: var(--accent4);
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    max-width: 85%;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .message.user {
+    flex-direction: row-reverse;
+    margin-left: auto;
+  }
+
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .message.user .message-avatar {
+    background: var(--accent);
+  }
+
+  .message.ai .message-avatar {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+  }
+
+  .message-content {
+    background: var(--card2);
+    padding: 14px 18px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .message.user .message-content {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+
+  .message-content strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+  }
+
+  .chat-input-container {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .chat-input:focus {
+    border-color: var(--accent);
+  }
+
+  .chat-input::placeholder {
+    color: var(--muted);
+  }
+
+  .send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s;
+  }
+
+  .send-btn:hover {
+    background: #d4ff4a;
+    transform: scale(1.05);
+  }
+
+  /* Sidebar Panel */
+  .coach-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .panel-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Quick Suggestions */
+  .suggestions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .suggestion-btn {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .suggestion-btn:hover {
+    background: rgba(200,241,53,0.1);
+    border-color: var(--accent);
+  }
+
+  .suggestion-btn span {
+    font-size: 16px;
+  }
+
+  /* Daily Tips */
+  .tip-card {
+    background: linear-gradient(135deg, rgba(124,109,250,0.15), rgba(200,241,53,0.1));
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+
+  .tip-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .tip-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  /* Stats */
+  .stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .stat-value {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .stat-value.good { color: var(--accent4); }
+  .stat-value.warning { color: var(--accent3); }
+  .stat-value.neutral { color: var(--accent); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--card2); border-radius: 10px; }
+
+  /* Loading */
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 0;
+  }
+
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+  }
+</style>
+</head>
+<body>
+<script src="user-profile.js"></script>
+<script>
+  // Check authentication - redirect to login if not authenticated
+  if (!UserProfile.isLoggedIn()) {
+    window.location.href = 'index.html';
+  }
+</script>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">Nutri<span>Mind</span></div>
+    </div>
+
+    <div>
+      <div class="nav-label">Main</div>
+      <a class="nav-item" href="nutrimind-fitness-app.html"><span class="icon">⊞</span> Dashboard</a>
+      <a class="nav-item" href="workoutpage.html"><span class="icon">🏋️</span> Workouts</a>
+      <a class="nav-item" href="nutrition.html"><span class="icon">🥗</span> Nutrition</a>
+      <a class="nav-item" href="progress.html"><span class="icon">📊</span> Progress</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Health</div>
+      <a class="nav-item" href="sleep.html"><span class="icon">💤</span> Sleep</a>
+      <a class="nav-item" href="hydration.html"><span class="icon">💧</span> Hydration</a>
+      <a class="nav-item" href="vitals.html"><span class="icon">❤️</span> Vitals</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="nav-label">Other</div>
+      <a class="nav-item" href="goals.html"><span class="icon">🎯</span> Goals</a>
+      <a class="nav-item" href="settings.html"><span class="icon">⚙️</span> Settings</a>
+    </div>
+
+    <div class="sidebar-bottom">
+      <a class="nav-item active" href="ai-coach.html"><span class="icon">🤖</span> AI Coach</a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>AI Coach</h1>
+        <p>Your personal fitness assistant</p>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+        <button class="btn btn-ghost">⚙️ Settings</button>
+        <button class="btn btn-primary">+ New Chat</button>
+      </div>
+    </div>
+
+    <!-- Coach Grid -->
+    <div class="coach-grid">
+      <!-- Chat Section -->
+      <div class="chat-container">
+        <div class="chat-header">
+          <div class="coach-avatar">
+            🤖
+            <div class="coach-status"></div>
+          </div>
+          <div class="coach-info">
+            <h2>FitCoach AI</h2>
+            <p>● Online • Always ready to help</p>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="message ai">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+              <strong>FitCoach AI</strong>
+              Hey <span id="initialGreetingName">User</span>! 👋 I'm your personal AI fitness coach. I can help you with:
+              🥗 Nutrition & meal planning<br>
+              🎯 Goal setting & tracking<br>
+              💪 Motivation & accountability<br>
+              ❤️ Health insights from your vitals<br><br>
+              What would you like to work on today?
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about your fitness journey..." onkeypress="handleKeyPress(event)">
+          <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+
+      <!-- Sidebar Panel -->
+      <div class="coach-panel">
+        <!-- Quick Suggestions -->
+        <div class="panel-card">
+          <div class="panel-title">💡 Quick Questions</div>
+          <div class="suggestions-grid">
+            <button class="suggestion-btn" onclick="askQuestion('What workout should I do today?')">
+              <span>🏋️</span> What workout should I do today?
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('Help me plan my meals')">
+              <span>🥗</span> Help me plan my meals
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('How am I doing on my goals?')">
+              <span>🎯</span> How am I doing on my goals?
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('Give me fitness tips')">
+              <span>💪</span> Give me fitness tips
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('Analyze my vitals')">
+              <span>❤️</span> Analyze my vitals
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('How much water should I drink?')">
+              <span>💧</span> Hydration advice
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('How to lose weight?')">
+              <span>⚖️</span> Weight loss tips
+            </button>
+            <button class="suggestion-btn" onclick="askQuestion('Give me motivation')">
+              <span>🔥</span>Motivation quotes
+            </button>
+          </div>
+        </div>
+
+        <!-- Daily Tip -->
+        <div class="panel-card">
+          <div class="panel-title">✨ Daily Tip</div>
+          <div class="tip-card">
+            <div class="tip-label">Today's Motivation</div>
+            <div class="tip-text" id="dailyTip">
+              Consistency beats intensity. Small daily actions lead to big results over time. Start with just 10 minutes of movement today!
+            </div>
+          </div>
+        </div>
+
+        <!-- Your Stats -->
+        <div class="panel-card">
+          <div class="panel-title">📊 Your Progress</div>
+          <div class="stats-list">
+            <div class="stat-row">
+              <span class="stat-label">Weight Goal</span>
+              <span class="stat-value good">4.2 kg to go</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Weekly Workouts</span>
+              <span class="stat-value neutral">4/5 completed</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Calorie Streak</span>
+              <span class="stat-value good">12 days 🔥</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Water Intake</span>
+              <span class="stat-value warning">72% of goal</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Heart Health</span>
+              <span class="stat-value good">Excellent (92)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motivational Quote -->
+        <div class="panel-card" style="background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none;">
+          <div class="tip-label" style="color: #0a0a0f;">💪 Motivation</div>
+          <div class="tip-text" style="color: #0a0a0f; font-style: italic;" id="quote">
+            "The only bad workout is the one that didn't happen."
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Initialize user name from user-profile.js
+  const currentUserName = typeof getUserName === 'function' ? getUserName() : 'User';
+
+  // Update greeting elements if they exist
+  const userNameEl = document.getElementById('aiCoachUserName');
+  if (userNameEl) userNameEl.textContent = currentUserName;
+  
+  const initialGreetingEl = document.getElementById('initialGreetingName');
+  if (initialGreetingEl) initialGreetingEl.textContent = currentUserName;
+
+  // User data for personalized responses
+  const userData = {
+    name: currentUserName,
+    currentWeight: 74.2,
+    goalWeight: 70,
+    caloriesConsumed: 1842,
+    caloriesGoal: 2200,
+    waterIntake: 1.8,
+    waterGoal: 2.5,
+    steps: 9342,
+    stepsGoal: 8700,
+    protein: 142,
+    proteinGoal: 180,
+    carbs: 198,
+    carbsGoal: 280,
+    fats: 54,
+    fatsGoal: 70,
+    workoutsThisWeek: 4,
+    workoutGoal: 5,
+    streak: 12,
+    heartRate: 62,
+    bloodPressure: "118/76",
+    bmi: 22.4,
+    bodyFat: 18.2,
+    muscleMass: 58.6
+  };
+
+  // Daily tips rotation
+  const dailyTips = [
+    "Consistency beats intensity. Small daily actions lead to big results over time.",
+    "Remember to stay hydrated! Water helps with energy, digestion, and recovery.",
+    "Sleep is when your body recovers. Aim for 7-9 hours for optimal fitness gains.",
+    "Protein is essential for muscle recovery. Make sure you're getting enough!",
+    "Rest days are just as important as workout days. Your body needs time to recover.",
+    "Walking after meals can help digestion and lower blood sugar levels.",
+    "Stretching before and after workouts helps prevent injury and improves flexibility."
+  ];
+
+  // Motivational quotes
+  const quotes = [
+    "The only bad workout is the one that didn't happen.",
+    "Your body can stand almost anything. It's your mind you have to convince.",
+    "Success is what comes after you stop making excuses.",
+    "The pain you feel today will be the strength you feel tomorrow.",
+    "Don't limit your challenges. Challenge your limits.",
+    "Every rep counts. Every set matters. Every day is progress.",
+    "The difference between try and triumph is a little umph."
+  ];
+
+  // Initialize with random tip and quote
+  document.getElementById('dailyTip').textContent = dailyTips[Math.floor(Math.random() * dailyTips.length)];
+  document.getElementById('quote').textContent = '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
+
+  // AI Response logic
+  function getAIResponse(question) {
+    const q = question.toLowerCase();
+    
+    // Workout related
+    if (q.includes('workout') || q.includes('exercise') || q.includes('training')) {
+      if (q.includes('today') || q.includes('what should i do')) {
+        return `Based on your schedule, here's my recommendation for today:<br><br>
+        <strong>✅ Completed:</strong> Morning Run (5.2km), Strength Training (Upper Body)<br>
+        <strong>🎯 Suggested:</strong> Evening Cycling (30 min) or Yoga Flow (20 min)<br><br>
+        You've completed 4/5 workouts this week! Finishing the last one would maintain your streak. 💪`;
+      }
+      return `Great question about workouts! Based on your current fitness level (intermediate), I recommend:<br><br>
+      • <strong>Strength:</strong> 3-4 sets of 8-12 reps<br>
+      • <strong>Cardio:</strong> 30-45 min, 3-4 times per week<br>
+      • <strong>Rest:</strong> At least 1-2 days per week<br><br>
+      Remember to warm up before and stretch after each session!`;
+    }
+    
+    // Nutrition related
+    if (q.includes('meal') || q.includes('food') || q.includes('nutrition') || q.includes('eat') || q.includes('diet')) {
+      if (q.includes('plan') || q.includes('help')) {
+        return `Here's a sample meal plan based on your goals:<br><br>
+        <strong>Breakfast (380 kcal):</strong> Oat Bowl with berries<br>
+        <strong>Lunch (460 kcal):</strong> Grilled Chicken Salad<br>
+        <strong>Snacks:</strong> Protein Shake, Greek Yogurt<br>
+        <strong>Dinner:</strong> Salmon with quinoa & veggies (~520 kcal)<br><br>
+        <strong>Tips:</strong> You've consumed ${userData.caloriesConsumed}/${userData.caloriesGoal} kcal today. 
+        Protein is at ${Math.round(userData.protein/userData.proteinGoal*100)}%, which is great!`;
+      }
+      return `For nutrition, focus on:<br><br>
+      • <strong>Protein:</strong> ${userData.protein}g / ${userData.proteinGoal}g (${Math.round(userData.protein/userData.proteinGoal*100)}%)<br>
+      • <strong>Carbs:</strong> ${userData.carbs}g / ${userData.carbsGoal}g (${Math.round(userData.carbs/userData.carbsGoal*100)}%)<br>
+      • <strong>Fats:</strong> ${userData.fats}g / ${userData.fatsGoal}g (${Math.round(userData.fats/userData.fatsGoal*100)}%)<br><br>
+      You're doing well! Just make sure to hit your protein goal for muscle recovery.`;
+    }
+    
+    // Goals related
+    if (q.includes('goal') || q.includes('progress') || q.includes('doing')) {
+      return `Here's your goal progress summary:<br><br>
+      <strong>🎯 Weight Goal:</strong> ${userData.currentWeight}kg → ${userData.goalWeight}kg<br>
+      Progress: ${Math.round((1 - (userData.currentWeight - userData.goalWeight)/(userData.currentWeight - userData.goalWeight + 4.2))*100)}% complete (4.2kg remaining)<br><br>
+      <strong>💪 Fitness:</strong> ${userData.workoutsThisWeek}/${userData.workoutGoal} workouts this week<br>
+      <strong>🔥 Streak:</strong> ${userData.streak} days - keep it going!<br><br>
+      You're doing amazing! Stay consistent and you'll reach your goals.`;
+    }
+    
+    // Vitals/Health related
+    if (q.includes('vital') || q.includes('heart') || q.includes('health') || q.includes('analyze')) {
+      return `Here's your health vitals analysis:<br><br>
+      <strong>❤️ Heart Rate:</strong> ${userData.heartRate} bpm - <span style="color: #38d9a9;">Excellent</span> (normal: 60-100)<br>
+      <strong>🩸 Blood Pressure:</strong> ${userData.bloodPressure} mmHg - <span style="color: #38d9a9;">Optimal</span><br>
+      <strong>⚖️ BMI:</strong> ${userData.bmi} - <span style="color: #38d9a9;">Healthy range</span><br>
+      <strong>💪 Body Fat:</strong> ${userData.bodyFat}% - <span style="color: #c8f135;">Good</span><br>
+      <strong>🏃 Steps:</strong> ${userData.steps.toLocaleString()} (${Math.round(userData.steps/userData.stepsGoal*100)}% of goal)<br><br>
+      Overall cardiovascular health score: <strong>92/100</strong> - Excellent! 🎉`;
+    }
+    
+    // Tips/Motivation
+    if (q.includes('tip') || q.includes('advice') || q.includes('fitness tips')) {
+      return `Here are my top fitness tips for you:<br><br>
+      1. <strong>Stay hydrated</strong> - You're at ${Math.round(userData.waterIntake/userData.waterGoal*100)}% of your water goal. Drink more water!<br>
+      2. <strong>Protein is key</strong> - Aim for ${userData.proteinGoal}g daily for muscle recovery<br>
+      3. <strong>Sleep 7-9 hours</strong> - Recovery happens during sleep<br>
+      4. <strong>Mix it up</strong> - Combine strength, cardio, and flexibility training<br>
+      5. <strong>Track everything</strong> - You're doing great with your ${userData.streak} day streak!<br><br>
+      Remember: Progress, not perfection! 🌟`;
+    }
+    
+    // Water/Hydration
+    if (q.includes('water') || q.includes('hydration') || q.includes('drink')) {
+      return `Hydration check!<br><br>
+You've had <strong>${userData.waterIntake}L</strong> of water today.<br>
+      Your goal is <strong>${userData.waterGoal}L</strong>.<br><br>
+      You're at <strong>${Math.round(userData.waterIntake/userData.waterGoal*100)}%</strong> of your daily goal.<br><br>
+      💧 <strong>Tip:</strong> Drink a glass of water before each meal to stay hydrated and aid digestion!`;
+    }
+    
+    // Weight
+    if (q.includes('weight') || q.includes('lose') || q.includes('gain')) {
+      return `Weight update:<br><br>
+      <strong>Current:</strong> ${userData.currentWeight} kg<br>
+      <strong>Goal:</strong> ${userData.goalWeight} kg<br>
+      <strong>Remaining:</strong> ${(userData.currentWeight - userData.goalWeight).toFixed(1)} kg<br><br>
+      You're making great progress! To reach your goal:<br>
+      • Maintain a caloric deficit of ~300-500 kcal<br>
+      • Continue your strength training<br>
+      • Stay consistent with cardio<br><br>
+      At your current pace, you can reach your goal by end of June! 🎯`;
+    }
+    
+    // Motivation
+    if (q.includes('motivation') || q.includes('quote')) {
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      return `Here's your dose of motivation! 🔥<br><br>
+      "${randomQuote}"<br><br>
+      Remember: Every day is a new opportunity to be stronger than yesterday! 💪 Keep pushing forward! 🌟`;
+    }
+    
+    // Sleep
+    if (q.includes('sleep') || q.includes('rest')) {
+      return `Sleep is crucial for fitness! 😴<br><br>
+      <strong>Your stats:</strong><br>
+      • Aim for 7-9 hours of sleep per night<br>
+      • You've been averaging good sleep quality<br>
+      <br><strong>Tips:</strong><br>
+      • Avoid screens 1 hour before bed<br>
+      • Keep your room cool (65-68°F)<br>
+      • Stick to a consistent sleep schedule<br>
+      • Avoid caffeine after 2 PM<br><br>
+      Quality sleep = better recovery = better results! 🌙`;
+    }
+    
+    // Beginner
+    if (q.includes('beginner') || q.includes('start')) {
+      return `Welcome to your fitness journey! � starting<br><br>
+      <strong>Beginner Tips:</strong><br><br>
+      1. <strong>Start slow</strong> - 10-15 min workouts, gradually increase<br>
+      2. <strong>Focus on form</strong> - Quality over quantity<br>
+      3. <strong>Walk more</strong> - Easy cardio to start<br>
+      4. <strong>Bodyweight exercises</strong> - Pushups, squats, planks<br>
+      5. <strong>Stay consistent</strong> - 3x per week is great!<br><br>
+      You've got this! 🌟`;
+    }
+    
+    // Protein
+    if (q.includes('protein') || q.includes('macros')) {
+      return `Great question about protein! 💪<br><br>
+      <strong>Your daily needs:</strong><br>
+      • Protein: ${userData.proteinGoal}g (you're at ${userData.protein}g)<br>
+      • Carbs: ${userData.carbsGoal}g (you're at ${userData.carbs}g)<br>
+      • Fats: ${userData.fatsGoal}g (you're at ${userData.fats}g)<br><br>
+      <strong>Best protein sources:</strong><br>
+      • Chicken, fish, lean beef<br>
+      • Eggs, Greek yogurt<br>
+      • Beans, lentils, tofu<br>
+      • Protein shakes<br><br>
+      Spread protein throughout the day for best absorption! 🥩`;
+    }
+    
+    // Default response
+    return `I'm here to help with all your fitness questions! Here's what I can assist you with:<br><br>
+    🏋️ <strong>Workouts:</strong> Recommendations, schedules, form tips<br>
+    🥗 <strong>Nutrition:</strong> Meal planning, macro tracking, healthy eating<br>
+    🎯 <strong>Goals:</strong> Progress tracking, goal setting<br>
+    ❤️ <strong>Health:</strong> Vitals analysis, health insights<br>
+    💧 <strong>Hydration:</strong> Water tracking tips<br><br>
+    Just ask me anything! What would you like to know?`;
+  }
+
+  // Backend API Configuration
+const API_BASE_URL = 'http://localhost:5001/api';
+
+  // Get JWT token from localStorage
+  function getAuthToken() {
+    return localStorage.getItem('nutrimind_auth_token');
+  }
+
+  // Handle sending messages - now uses C# Backend API
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (message) {
+      addMessage(message, 'user');
+      input.value = '';
+      
+      // Show typing indicator
+      showTyping();
+      
+      try {
+        // Try to call the C# backend API
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/aicoach/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            message: message,
+            userContext: {
+              name: userData.name,
+              currentWeight: userData.currentWeight,
+              goalWeight: userData.goalWeight,
+              caloriesConsumed: userData.caloriesConsumed,
+              caloriesGoal: userData.caloriesGoal,
+              waterIntake: userData.waterIntake,
+              waterGoal: userData.waterGoal,
+              protein: userData.protein,
+              proteinGoal: userData.proteinGoal,
+              workoutsThisWeek: userData.workoutsThisWeek,
+              workoutGoal: userData.workoutGoal,
+              streak: userData.streak,
+              heartRate: userData.heartRate,
+              bloodPressure: userData.bloodPressure
+            }
+          })
+        });
+
+        removeTyping();
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            addMessage(result.response, 'ai');
+          } else {
+            // Fallback to local response if API returns error
+            const fallbackResponse = getAIResponse(message);
+            addMessage(fallbackResponse, 'ai');
+          }
+        } else {
+          // API not available, use local fallback
+          const fallbackResponse = getAIResponse(message);
+          addMessage(fallbackResponse, 'ai');
+        }
+      } catch (error) {
+        console.log('API not available, using local AI response:', error);
+        removeTyping();
+        // Fallback to local response
+        const fallbackResponse = getAIResponse(message);
+        addMessage(fallbackResponse, 'ai');
+      }
+    }
+  }
+
+  // Handle enter key
+  function handleKeyPress(e) {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  }
+
+  // Ask predefined question
+  function askQuestion(question) {
+    addMessage(question, 'user');
+    showTyping();
+    setTimeout(() => {
+      removeTyping();
+      const response = getAIResponse(question);
+      addMessage(response, 'ai');
+    }, 1000);
+  }
+
+  // Add message to chat
+  function addMessage(content, type) {
+    const messages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    
+    const avatar = type === 'user' ? '👤' : '🤖';
+    const label = type === 'user' ? userData.name : 'FitCoach AI';
+    
+    messageDiv.innerHTML = `
+      <div class="message-avatar">${avatar}</div>
+      <div class="message-content">
+        <strong>${label}</strong>
+        ${content}
+      </div>
+    `;
+    
+    messages.appendChild(messageDiv);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // Show typing indicator
+  function showTyping() {
+    const messages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+      <div class="message-avatar">🤖</div>
+      <div class="message-content">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    messages.appendChild(typingDiv);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // Remove typing indicator
+  function removeTyping() {
+    const typing = document.getElementById('typingIndicator');
+    if (typing) {
+      typing.remove();
+    }
+  }
+</script>
+</body>
+</html>
